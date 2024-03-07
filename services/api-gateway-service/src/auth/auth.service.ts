@@ -10,10 +10,11 @@ export class AuthService {
     return {
       success: success,
       data: {
-        id_user: user.id,
+        id_user: user._id,
+        usuario: user.usuario,
         email: user.email,
-        rol: user.rol,
-        name: user.name,
+        roles: user.roles,
+        nombre_apellido: user.nombre_apellido,
         access_token: this.jwtService.sign(user),
       },
     };

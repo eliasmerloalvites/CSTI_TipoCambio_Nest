@@ -52,9 +52,12 @@ describe('UsersController', () => {
     it('must return data User', async () => {
 
       const object:CreateUserDto = {
-        name: "elias3",
+        codigo_usuario: "12345678",
+        usuario: "elias3@gmail.com",
+        nombre_apellido: "elias3@gmail.com",
         email: "elias3@gmail.com",
-        password: "123456"
+        contraseña: "123456",
+        roles:["ADMINISTRADOR"]
       }
 
       const result = await controller.createUser(object)
@@ -70,7 +73,7 @@ describe('UsersController', () => {
 
       const object = {
         email: "elias@gmail.com",
-        password: "123456"
+        contraseña: "123456"
       }
       
       const result = await controller.login(object)

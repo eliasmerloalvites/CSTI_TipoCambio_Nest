@@ -19,6 +19,8 @@ export class UsersController {
 
   @MessagePattern({ cmd: 'login' })
   async login(params: any) {
+    console.log("que pasa company")
+    console.log(params)
     return await this.usersService.login(params.email, params.password);
   }
 

@@ -4,15 +4,18 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ClientProxy } from '@nestjs/microservices';
 import { AuthService } from '../auth/auth.service';
 import { LoginDto } from './dto/login.dto';
-import { IsEmail } from 'class-validator';
 import { AuthGuard } from '../auth/auth.guard';
+import { Roles } from '../roles/roles.decorator';
+import { RolesGuard } from '../roles/roles.guard';
+import { Role } from '../roles/role.enum';
 
-@ApiTags('users')
-@Controller('users')
+@ApiTags('user')
+@Controller('user')
 export class UsersController {
   constructor(
     private readonly authService: AuthService,
-    @Inject('COMPANY_SERVICE') private clientCompany: ClientProxy
+    @Inject('COMPANY_SERVICE') private clientCompany: ClientProxy,
+    @Inject('USER_SERVICE') private clientUser: ClientProxy
   ) {}
 
 
@@ -23,19 +26,19 @@ export class UsersController {
       .toPromise();
   }
 
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
+  /* @UseGuards(AuthGuard)
+  @ApiBearerAuth() */
   @Post('/add')
   async createUser(@Body() createUserDto: CreateUserDto) {
     
-    return await this.clientCompany
+    return await this.clientUser
       .send({ cmd: 'create_user' }, createUserDto)
       .toPromise();
   }
 
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
-    const result = await this.clientCompany
+    const result = await this.clientUser
       .send({ cmd: 'login' }, loginDto)
       .toPromise();
 
@@ -46,6 +49,15 @@ export class UsersController {
     }
   }
 
+
+  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard)
+  @Roles(Role.administradorGeneral)
+  @ApiBearerAuth()
+  @Get('/verify_token')
+  async getUser(@Request() req) {
+    return req.user
+  }
 
 
 

@@ -1,23 +1,46 @@
 version: '3.8'
 services:
+    rider-securitydb:
+        image: mongo
+        restart: always
+        ports:
+            - "27017:27017"
+        container_name: rider-security-mongo
+        networks:
+            - rider-security
     gateway:
         build: ./services/api-gateway-service
         restart: always
         hostname: gateway
         ports:
             - "3000:3000"
-        container_name: elias-gateway
+        depends_on:
+            - rider-securitydb
+        container_name: rider-security-gateway
         networks:
-            - elias
+            - rider-security
+    user:
+        build: ./services/user-service
+        restart: always
+        hostname: user
+        ports:
+            - "3001:3001"
+        depends_on:
+            - rider-securitydb
+        container_name: rider-security-users
+        networks:
+            - rider-security
     company:
         build: ./services/company-service
         restart: always
         hostname: company
         ports:
             - "3002:3002"
-        container_name: elias-companies
+        depends_on:
+            - rider-securitydb
+        container_name: rider-security-companies
         networks:
-            - elias
+            - rider-security
 networks:
-    elias:
+    rider-security:
         driver: bridge

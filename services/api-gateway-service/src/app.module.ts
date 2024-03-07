@@ -36,6 +36,18 @@ const env = process.env.NODE_ENV || 'development';
     AppService,
     AuthService,
     {
+      provide: 'USER_SERVICE',
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) =>
+        ClientProxyFactory.create({
+          transport: Transport.TCP,
+          options: {
+            host: String(process.env.USER_HOST),
+            port: Number(process.env.USER_SERVICE_PORT),
+          },
+        }),
+    },
+    {
       provide: 'COMPANY_SERVICE',
       inject: [ConfigService],
       useFactory: (configService: ConfigService) =>
