@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UsersController } from './../users.controller';
+import { UsersController } from '../conductors.controller';
 import { AuthModule } from './../../auth/auth.module';
 import { AuthService } from './../../auth/auth.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
-import { CreateUserDto } from '../dto/create-user.dto';
+import { CreateUserDto } from '../dto/create-conductor.dto';
 
 describe('UsersController', () => {
   let module: TestingModule;

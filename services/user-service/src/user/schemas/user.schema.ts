@@ -3,12 +3,13 @@ import * as mongoose from 'mongoose';
 const roles = [
   'ADMINISTRADOR',
   'SUPERVISOR',
+  'CONDUCTOR',
   'USUARIO'
 ];
 
 export const UserSchema = new mongoose.Schema({
   codigo_usuario: {
-    type: String,
+    type: Number,
     required: true,
     unique: true,
     index: true,
@@ -37,6 +38,8 @@ export const UserSchema = new mongoose.Schema({
     default: null,
   },
   status: { type: String, require: false, default: 'PEN' },
+  online: { type: Boolean, require: false, default:null},
+  avatar: { type: String, required: false, default:null },
   campania: { type: Boolean, require: false, default: 'false' },
   fe_conexion: { type: Date, require: false, default: null },
   ul_latitud: { type: Number, required: false, default: null },

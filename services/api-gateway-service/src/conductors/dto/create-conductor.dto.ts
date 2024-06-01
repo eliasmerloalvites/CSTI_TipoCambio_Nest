@@ -1,6 +1,6 @@
 import { ArrayMinSize, IsArray, IsEmail, IsString, MinLength,  IsNumber, MaxLength } from "class-validator"
 
-export class CreateUserDto {
+export class CreateConductorDto {
 
     @IsNumber()
     codigo_usuario: number;

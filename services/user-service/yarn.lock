@@ -2372,6 +2372,11 @@
   "resolved" "https://registry.npmjs.org/crypto-js/-/crypto-js-4.2.0.tgz"
   "version" "4.2.0"
 
+"date-fns@^3.4.0":
+  "integrity" "sha512-Akz4R8J9MXBsOgF1QeWeCsbv6pntT5KCPjU0Q9prBxVmWJYPLhwAIsNg3b0QAdr0ttiozYLD3L/af7Ra0jqYXw=="
+  "resolved" "https://registry.npmjs.org/date-fns/-/date-fns-3.4.0.tgz"
+  "version" "3.4.0"
+
 "dayjs@^1.11.9":
   "integrity" "sha512-vjAczensTgRcqDERK0SR2XMwsF/tSvnvlv6VcF2GIhg6Sx4yOIt/irsr1RDJsKiIyBzJDpCoXiWWq28MqH2cnQ=="
   "resolved" "https://registry.npmjs.org/dayjs/-/dayjs-1.11.10.tgz"

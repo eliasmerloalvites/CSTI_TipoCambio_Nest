@@ -7,8 +7,10 @@ import { Transport, ClientProxyFactory } from '@nestjs/microservices';
 
 //CONTROLLERS
 import { AppController } from './app/app.controller';
-import { ExchangeRateController } from './exchange-rate/exchange-rate.controller';
 import { UsersController } from './users/users.controller';
+import { ConductorsController } from './conductors/conductors.controller';
+import { EmpresaController } from './empresa/empresa.controller';
+import { PaisController } from './pais/pais.controller';
 
 //SERVICIOS
 import { AppService } from './app/app.service';
@@ -29,8 +31,10 @@ const env = process.env.NODE_ENV || 'development';
   ],
   controllers: [
     AppController,
-    ExchangeRateController,
-    UsersController
+    UsersController,
+    ConductorsController,
+    EmpresaController,  
+    PaisController
   ],
   providers: [
     AppService,

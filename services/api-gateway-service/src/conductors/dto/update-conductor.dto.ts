@@ -1,9 +1,12 @@
-import { ArrayMinSize, IsArray, IsEmail, IsString, MinLength,  IsNumber, MaxLength } from "class-validator"
+import { ArrayMinSize, IsArray, IsEmail, IsString, MinLength,  IsNumber, MaxLength, IsOptional } from "class-validator"
 
-export class CreateUserDto {
+export class EditarConductorDto {  
+  
+    @IsString()
+    _id: string;
 
     @IsNumber()
-    codigo_usuario: number;
+    codigo_usuario: string;
 
     @IsString()
     usuario: string;
@@ -16,12 +19,12 @@ export class CreateUserDto {
     email: string;
 
     @IsString()
-    @MinLength(6)
-    contraseña: string;
+    @IsOptional()
+    contraseña?: string;
 
     @IsString()
-    @MinLength(6)
-    changecontraseña : string;
+    @IsOptional()
+    changecontraseña? : string;
 
     @IsArray()
     @ArrayMinSize(1, { message: 'Debe proporcionar al menos un rol.' })
@@ -29,5 +32,5 @@ export class CreateUserDto {
     roles: string[];
 
     @IsString()
-    avatar: string;
+    avatar?: string;
   }
