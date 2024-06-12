@@ -18,6 +18,11 @@ import { NestFactory } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { AuthService } from './auth/auth.service';
 
+//CHAT
+import { ChatController } from './chat/chat.controller';
+import { ChatService } from './chat/chat.service';
+import { ChatGateway } from './chat/chat.gateway';
+
 
 const env = process.env.NODE_ENV || 'development';
 
@@ -28,17 +33,21 @@ const env = process.env.NODE_ENV || 'development';
       isGlobal: true,
     }),
     AuthModule,
+    AuthModule,
   ],
   controllers: [
     AppController,
     UsersController,
     ConductorsController,
     EmpresaController,  
-    PaisController
+    PaisController,
+    ChatController
   ],
   providers: [
     AppService,
     AuthService,
+    ChatGateway,
+    ChatService,
     {
       provide: 'USER_SERVICE',
       inject: [ConfigService],
@@ -60,6 +69,18 @@ const env = process.env.NODE_ENV || 'development';
           options: {
             host: String(process.env.COMPANY_HOST||'127.0.0.1'),
             port: Number(process.env.COMPANY_SERVICE_PORT||3002),
+          },
+        }),
+    },
+    {
+      provide: 'CHAT_SERVICE',
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) =>
+        ClientProxyFactory.create({
+          transport: Transport.TCP,
+          options: {
+            host: String(process.env.CHAT_HOST||'127.0.0.1'),
+            port: Number(process.env.CHAT_SERVICE_PORT||3003),
           },
         }),
     }

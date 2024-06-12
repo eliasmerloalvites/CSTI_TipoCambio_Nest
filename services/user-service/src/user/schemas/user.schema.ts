@@ -14,7 +14,6 @@ export const UserSchema = new mongoose.Schema({
     unique: true,
     index: true,
   },
-  usuario: { type: String, required: true, index: true },
   nombre_apellido: { type: String, required: true },
   contraseña: { type: String, required: true },
   email: { type: String, required: false },

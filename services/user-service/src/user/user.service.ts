@@ -12,19 +12,6 @@ const CryptoJS = require('crypto-js');
 export class UserService {
   constructor(@InjectModel('User') private userModel: Model<User>) {}
 
-  /*async onModuleInit() {
-     const params  = {
-      "codigo_usuario": "12345678",
-      "usuario": "elias merlo",
-      "nombre_apellido":"Abner Elias Merlo Alvites",
-      "contraseña": "123456",
-      "email": "elias@gmail.com",
-      "roles":["ADMINISTRADOR"]
-    }
-    const usuario = await  this.userModel.create((params));
-    this.createUser(usuario);
-  } */
-
   getDate(): String {
     return moment().format('YYYY-MM-DD hh:mm A');
   }
@@ -69,7 +56,6 @@ export class UserService {
         arrayFilter.push(filters_parseado)
         query.$and = arrayFilter;
       }
-      console.log(query)
       // query.idproceso = mongoose.Types.ObjectId(processId);
 
       const usuario = await this.userModel
@@ -187,7 +173,7 @@ export class UserService {
       }
       
       const validateUsuario = await this.userModel
-        .findOne({ usuario: userParams.usuario })
+        .findOne({ codigo_usuario: userParams.codigo_usuario })
         .lean()
         .exec();
 
@@ -274,7 +260,6 @@ export class UserService {
   async deleteUserById(id_user: string) {
     try {
       var success = true;
-      console.log(id_user)
 
         const result = await this.userModel
         .updateMany({ _id: id_user }, { status: 'DESACT' })
@@ -298,7 +283,6 @@ export class UserService {
   async activarUserById(id_user: string) {
     try {
       var success = true;
-      console.log(id_user)
 
         const result = await this.userModel
         .updateMany({ _id: id_user }, { status: 'ACT' })
@@ -322,7 +306,6 @@ export class UserService {
   async login(usuario: string, contraseña: string): Promise<any>  {
     try {
       var success = true;
-      console.log(usuario)
       const validateUsuario = await this.userModel
         .findOne(
           { email: usuario, status: 'ACT' },
@@ -330,7 +313,6 @@ export class UserService {
         )
         .lean()
         .exec();
-        console.log(validateUsuario)
 
       if (validateUsuario) {
         const { contraseña: pass, ...userValid } = validateUsuario;

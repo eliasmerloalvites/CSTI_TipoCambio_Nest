@@ -37,6 +37,11 @@ export class ConductorController {
     return await this.conductorService.getConductorWebById(params.id_conductor);
   }
   
+  @MessagePattern({ cmd: 'findweb_conductor_imagenes_by_id' })
+  async getConductorImagenesWebById(params: any) {
+    return await this.conductorService.getConductorImagenesWebById(params.id_conductor);
+  }
+  
   @MessagePattern({ cmd: 'find_typevehiculo' })
   async findTypeVehiculo() {
     return await this.conductorService.findTypeVehiculo();

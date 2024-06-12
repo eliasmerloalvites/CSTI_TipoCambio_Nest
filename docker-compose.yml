@@ -19,6 +19,13 @@ services:
         container_name: rider-security-gateway
         networks:
             - rider-security
+        environment:
+            - MONGO_URL=mongodb+srv://EliasMerlo:knhHtq4P6yA38t5P@cluster0.mjgvmh2.mongodb.net/RiderSecurity
+            - GATEWAY_PORT=3000
+            - USER_HOST=user
+            - USER_SERVICE_PORT=3001
+            - COMPANY_HOST=company
+            - COMPANY_SERVICE_PORT=3002
     user:
         build: ./services/user-service
         restart: always
@@ -30,6 +37,10 @@ services:
         container_name: rider-security-users
         networks:
             - rider-security
+        environment:
+            - MONGO_URL=mongodb+srv://EliasMerlo:knhHtq4P6yA38t5P@cluster0.mjgvmh2.mongodb.net/RiderSecurity
+            - USER_HOST=user 
+            - USER_SERVICE_PORT=3001
     company:
         build: ./services/company-service
         restart: always
@@ -41,6 +52,10 @@ services:
         container_name: rider-security-companies
         networks:
             - rider-security
+        environment:
+            - MONGO_URL=mongodb+srv://EliasMerlo:knhHtq4P6yA38t5P@cluster0.mjgvmh2.mongodb.net/RiderSecurity
+            - COMPANY_HOST=company 
+            - COMPANY_SERVICE_PORT=3002
 networks:
     rider-security:
         driver: bridge

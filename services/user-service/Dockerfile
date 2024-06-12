@@ -1,4 +1,4 @@
-FROM node:20
+FROM node:18
 WORKDIR /company
 COPY package.json /company
 RUN yarn install

@@ -11,11 +11,18 @@ export class AuthService {
       success: success,
       data: {
         id_user: user._id,
-        usuario: user.usuario,
+        codigo_usuario: user.codigo_usuario,
         email: user.email,
         roles: user.roles,
         nombre_apellido: user.nombre_apellido,
-        access_token: this.jwtService.sign(user),
+        avatar: user.avatar,
+        access_token: this.jwtService.sign({
+          id_user: user._id,
+          codigo_usuario: user.codigo_usuario,
+          email: user.email,
+          roles: user.roles,
+          nombre_apellido: user.nombre_apellido,
+        }),
       },
     };
   }

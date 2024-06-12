@@ -195,6 +195,43 @@ export class ConductorService {
   async getConductorsByTipoByRuta(options:any): Promise<ResConductor<ConductorData[]>> {
     try {
         console.log(options)
+        var pag = parseInt(options.page);
+        var limit = parseInt(options.items_per_page);
+        var skip = (pag - 1) * limit;
+        const ordenamiento = {};
+        if(options.nameorder && options.order){
+          const typeOrder:1|-1 = options.order==='asc'?1:-1
+          ordenamiento[options.nameorder] = typeOrder
+        }
+        const query : any  = {};
+        let searchFilter= {};
+        if (options.searchQuery) {
+          const searchRegex = new RegExp(options.searchQuery, 'i');
+          searchFilter = {
+            $or: [
+              { nombres: searchRegex },
+              { apellidos: searchRegex },
+              { email: searchRegex }
+            ],
+          };
+        }
+        const arrayFilter = []
+        if (Object.keys(searchFilter).length > 0) {
+          arrayFilter.push(searchFilter)
+          query.$and = arrayFilter;
+        }
+        if (Object.keys(options.filters).length > 0) {
+          const filters_parseado= {};
+
+          for (const key in options.filters) {
+            const filterRegex = key === "status"?  new RegExp(`^${options.filters[key]}$`, 'i'): new RegExp(options.filters[key], 'i');
+            
+            filters_parseado[key] = filterRegex;
+          }
+          arrayFilter.push(filters_parseado)
+          query.$and = arrayFilter;
+        }
+
         const results = await this.conductorModel
         .find({
           "vehiculo.tipo_vehiculo":options.tipo_vehiculo,
@@ -203,13 +240,38 @@ export class ConductorService {
         .populate('id_empresa','nombre')
         .populate('id_user_responsable','avatar')
         .select('account_type apellidos nombres vehiculo.servicio.rutas id_empresa id_user_responsable ')
+        .skip(Number(skip))
+        .limit(Number(limit))
+        .sort(ordenamiento)
         .lean()
         .exec();
+
+        var length = await this.conductorModel
+        .countDocuments({
+          "vehiculo.tipo_vehiculo":options.tipo_vehiculo,
+          "vehiculo.servicio.rutas":options.ruta
+        })
+        .exec();
+
+        const {To,From,prev_page_url,first_page_url,next_page_url,last_page,links} = calcular_paginacion(pag,limit,length)
+
 
         return {
           success: true,
           data: results,
           payload: {
+            pagination:{
+              to:To,
+              from:From,
+              total:length,
+              prev_page_url:prev_page_url,
+              first_page_url:first_page_url,
+              next_page_url:next_page_url,
+              page: pag,
+              last_page:last_page,
+              items_per_page: limit,
+              links
+            },
             message: 'LISTA ENCONTRADA CORRECTAMENTE'
           },
         };
@@ -257,10 +319,39 @@ export class ConductorService {
 
       const empresa = await this.conductorModel
         .findById(_id)
-        .select("-__v -fe_creacion -fe_modificacion")
+        .populate('id_empresa','nombre')
+        .populate('id_user_responsable','avatar')
+        .select('-licencia -vehiculo.documento_inspeccion -vehiculo.documento_seguro -vehiculo.imagen')
         .lean()
         .exec();
+        
+      return {
+        success: true,
+        data: empresa,
+        payload: {
+          message: 'LISTA ENCONTRADA CORRECTAMENTE'
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        data: null,
+        payload:{
+          message: 'ALGO SALIO MAL'
+        }
+      };
+    }
+  }
+  
+  async getConductorImagenesWebById(_id: string): Promise<ResConductor<ConductorData>> {
+    try {
 
+      const empresa = await this.conductorModel
+        .findById(_id)
+        .select('vehiculo.imagen')
+        .lean()
+        .exec();
+        
       return {
         success: true,
         data: empresa,

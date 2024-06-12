@@ -3,7 +3,6 @@ import { Document } from 'mongoose';
 export interface User extends Document {
   //USUARIOS
   codigo_usuario: number;
-  usuario: string;
   nombre_apellido: string;
   contraseña?: string;
   email: string;

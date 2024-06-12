@@ -62,15 +62,15 @@ export class UsersController {
   }
 
   
-  @UseGuards(RolesGuard)
+  /* @UseGuards(RolesGuard)
   @UseGuards(AuthGuard)
   @Roles(Role.administradorGeneral)
-  @ApiBearerAuth()
+  @ApiBearerAuth() */
   @Post('/add')
   async createUser(@Body() createUserDto: CreateUserDto) {
     
     return await this.clientUser
-      .send({ cmd: 'create_user' }, createUserDto)
+      .send({ cmd: 'create_user' }, {...createUserDto,status:"ACT"})
       .toPromise();
   }
   

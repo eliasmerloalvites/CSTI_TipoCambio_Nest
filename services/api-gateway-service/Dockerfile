@@ -1,4 +1,4 @@
-FROM node:20
+FROM node:18
 WORKDIR /api-gateway
 COPY package.json /api-gateway
 RUN yarn install

@@ -59,24 +59,23 @@ export class ConductorsController {
     const filters = {};
 
     const params = {
+      page:requestData.page||null,
+      items_per_page:requestData.items_per_page||null,
+      search:requestData.search||null,
+      sort:requestData.sort||null,
+      order:requestData.order||null,
+      filters:filters||null,      
       tipo_vehiculo,
       ruta
     }
+
     /* for (const key in requestData) {
         if (key.startsWith('filter_')) {
             filters[key.replace('filter_', '')] = requestData[key];
         }
     }
     
-    const params = {
-      page:requestData.page||null,
-      items_per_page:requestData.items_per_page||null,
-      search:requestData.search||null,
-      sort:requestData.sort||null,
-      order:requestData.order||null,
-      filters:filters||null,
-    } */
-    console.log(params)
+     */
     return await this.clientCompany
       .send({ cmd: 'get_conductors_bytipobyruta' }, params)
       .toPromise();
@@ -140,8 +139,21 @@ export class ConductorsController {
     @Request() req,
     @Param('id_conductor') id_conductor,
   ) {
+
+    
     return await this.clientCompany
       .send({ cmd: 'findweb_conductor_by_id' }, {id_conductor})
+      .toPromise();
+  }
+
+  @ApiBearerAuth()
+  @Get('/findweb/imagenes/:id_conductor')
+  async getConductorImagenesWebById(
+    @Request() req,
+    @Param('id_conductor') id_conductor,
+  ) {
+    return await this.clientCompany
+      .send({ cmd: 'findweb_conductor_imagenes_by_id' }, {id_conductor})
       .toPromise();
   }
 
@@ -152,11 +164,9 @@ export class ConductorsController {
   @ApiBearerAuth()
   @Post('/add')
   async createConductor(@Body() createConductorDto: any, @Request() req) {
-    console.log(req.user)
     createConductorDto.id_user_creador = req.user._id
     const userDto:CreateUserDto = {
       codigo_usuario:createConductorDto.num_documento,
-      usuario:createConductorDto.apellidos,
       nombre_apellido: createConductorDto.nombres+' '+createConductorDto.apellidos,
       email: createConductorDto.email,
       contraseña:createConductorDto.num_documento,
@@ -170,13 +180,11 @@ export class ConductorsController {
 
       .toPromise();
     if(userResult){
-      console.log(userResult)
       createConductorDto.id_user_responsable = userResult.data._id
       return await this.clientCompany
       .send({ cmd: 'create_conductor' }, createConductorDto)
       .toPromise();
     }else{
-      console.log(userResult)
       /* createConductorDto.id_user_responsable = userResult.data._id
       return await this.clientCompany
       .send({ cmd: 'create_conductor' }, createConductorDto)
