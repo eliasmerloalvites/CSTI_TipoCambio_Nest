@@ -1,8 +1,10 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { join } from 'path';
 
 //CONFIMODULE
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Transport, ClientProxyFactory } from '@nestjs/microservices';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 
 //CONTROLLERS
@@ -28,6 +30,10 @@ const env = process.env.NODE_ENV || 'development';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads', // Ruta desde donde se servirán los archivos
+    }),
     ConfigModule.forRoot({
       envFilePath: `environments/${env}.env`,
       isGlobal: true,

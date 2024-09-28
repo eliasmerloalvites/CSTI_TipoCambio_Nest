@@ -14,7 +14,7 @@ import { UserController } from './user/user.controller';
 
 import { ChatController } from './chat/chat.controller';
 import { ChatService } from './chat/chat.service';
-import { Message, MessageSchema } from './chat/schemas/message.schema';
+import {  MessageSchema } from './chat/schemas/message.schema';
 
 
 
@@ -39,7 +39,7 @@ const env = process.env.NODE_ENV || 'development';
           return schema;
         },
       },
-      { name: Message.name,
+      { name: 'Message',
         useFactory: () => {
           const schema = MessageSchema;
           schema.plugin(require('mongoose-unique-validator'), {

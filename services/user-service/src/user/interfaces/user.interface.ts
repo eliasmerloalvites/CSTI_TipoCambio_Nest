@@ -15,6 +15,7 @@ export interface User extends Document {
   id_user_creador: string;
   id_user_modificador: string;
   status: string;
+  client_id: string;
   online: boolean;
   avatar: string;
   campania: boolean;

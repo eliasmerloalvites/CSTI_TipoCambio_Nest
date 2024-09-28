@@ -10,4 +10,17 @@ export class ChatService {
   async sendMessage(createMessageDto: CreateMessageDto): Promise<any> {
     return this.client.send({ cmd: 'send_message' }, createMessageDto).toPromise();
   }
+
+  async markMessageAsRead(messageId: string, userId: string): Promise<any> {
+    return this.client.send({ cmd: 'mark_message_asread' }, {messageId,userId}).toPromise();
+  }
+
+  async onlineUser(id_user: String,client: String): Promise<any> {
+    return this.client.send({ cmd: 'user_online' }, {id_user,client}).toPromise();
+  }
+
+  async offlineUser(client: String): Promise<any> {
+    return this.client.send({ cmd: 'user_offline' }, {client}).toPromise();
+  }
+
 }

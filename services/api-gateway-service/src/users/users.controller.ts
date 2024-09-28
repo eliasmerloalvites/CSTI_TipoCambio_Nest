@@ -52,12 +52,24 @@ export class UsersController {
   @Roles(Role.administradorGeneral)
   @ApiBearerAuth()
   @Get('/find/:id_user')
-  async editarTarea(
+  async findIdUser(
     @Request() req,
     @Param('id_user') id_user,
   ) {
     return await this.clientUser
       .send({ cmd: 'find_user_by_id' }, {id_user})
+      .toPromise();
+  }
+
+  
+  @ApiBearerAuth()
+  @Get('/findweb/:id_user')
+  async findWebIdUser(
+    @Request() req,
+    @Param('id_user') id_user,
+  ) {
+    return await this.clientUser
+      .send({ cmd: 'findweb_user_by_id' }, {id_user})
       .toPromise();
   }
 

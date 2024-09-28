@@ -3,6 +3,11 @@ import * as bcryptjs from 'bcryptjs'
 import { Model } from 'mongoose';
 import { ResUser, User, UserData } from './interfaces/user.interface';
 import { InjectModel } from '@nestjs/mongoose';
+import { writeFile } from 'fs';
+import { join } from 'path';
+import { promisify } from 'util';
+
+const writeFileAsync = promisify(writeFile);
 
 const {calcular_paginacion,diferenciaDeFecha,formatearFechaYHora} = require('../functions/funciones');
 const moment = require('moment');
@@ -126,7 +131,7 @@ export class UserService {
 
       const usuario = await this.userModel
         .findById(_id)
-        .select('_id codigo_usuario usuario email nombre_apellido roles')
+        .select('_id codigo_usuario usuario email nombre_apellido roles avatar')
         .lean()
         .exec();
 
@@ -147,6 +152,34 @@ export class UserService {
       };
     }
   }
+
+  async findWebIdUser(_id: string): Promise<ResUser<UserData>> {
+    try {
+
+      const usuario = await this.userModel
+        .findById(_id)
+        .select('_id codigo_usuario usuario email nombre_apellido avatar')
+        .lean()
+        .exec();
+
+      return {
+        success: true,
+        data: usuario,
+        payload: {
+          message: 'LISTA ENCONTRADA CORRECTAMENTE'
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        data: null,
+        payload:{
+          message: 'ALGO SALIO MAL'
+        }
+      };
+    }
+  }
+
 
   async findAllUser(): Promise<User[]> {
     return await this.userModel.find();
@@ -189,6 +222,25 @@ export class UserService {
           String(userParams.contraseña),
           'secret key 123'
         ).toString();
+        if((userParams.avatar || userParams.avatar === "") && userParams.avatar.includes('base64') ){
+          const fileType = this.getFileType(userParams.avatar);
+
+          const host = String(process.env.GATEWAY_HOST)
+          const port = Number(process.env.GATEWAY_PORT)
+          const base64Data = userParams.avatar.replace(/^data:[a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+;base64,/, '');
+          let fileExtension = '';
+          if (fileType.startsWith('image/')) {
+            fileExtension = fileType.split('/')[1];
+          } else if (fileType === 'application/pdf') {
+            fileExtension = 'pdf';
+          }
+          const buffer = Buffer.from(base64Data, 'base64');
+          const filename = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExtension}`;
+          const filePath = join(__dirname, '..', '..','..','api-gateway-service', 'uploads','users', filename);
+          await writeFileAsync(filePath, buffer);
+          const publicPath = `http://${host}:${port}/uploads/users/${filename}`;
+          userParams.avatar = publicPath
+        } 
         /* userParams.id_pais = id_pais;
         userParams.id_user_creador = id_user; */
         userParams.fe_creacion = new Date(String(this.getDate()));
@@ -232,7 +284,27 @@ export class UserService {
           message: 'ROLE INVALIDO',
         };
       }
-      if(userParams.avatar || userParams.avatar === "") delete userParams.avatar
+
+
+      if((userParams.avatar || userParams.avatar === "") && userParams.avatar.includes('base64') ){
+        const fileType = this.getFileType(userParams.avatar);
+
+        const host = String(process.env.GATEWAY_HOST)
+        const port = Number(process.env.GATEWAY_PORT)
+        const base64Data = userParams.avatar.replace(/^data:[a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+;base64,/, '');
+        let fileExtension = '';
+        if (fileType.startsWith('image/')) {
+          fileExtension = fileType.split('/')[1];
+        } else if (fileType === 'application/pdf') {
+          fileExtension = 'pdf';
+        }
+        const buffer = Buffer.from(base64Data, 'base64');
+        const filename = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExtension}`;
+        const filePath = join(__dirname, '..', '..','..','api-gateway-service', 'uploads','users', filename);
+        await writeFileAsync(filePath, buffer);
+        const publicPath = `http://${host}:${port}/uploads/users/${filename}`;
+        userParams.avatar = publicPath
+      } 
       if(userParams.contraseña || userParams.contraseña === "") delete userParams.contraseña
       if(userParams.changecontraseña || userParams.changecontraseña === "") delete userParams.changecontraseña
 
@@ -351,4 +423,10 @@ export class UserService {
   async findOneByEmail(email: string) {
     return await this.userModel.findOne({ email });
   }
+
+  getFileType(base64: string): string {
+    const mimeType = base64.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
+    return mimeType ? mimeType[1] : null;
+  }
+
 }

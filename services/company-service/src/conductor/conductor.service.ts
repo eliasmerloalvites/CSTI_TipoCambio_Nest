@@ -3,7 +3,10 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Conductor, ConductorData, ResConductor } from './interfaces/conductor.interface';
 const {calcular_paginacion,diferenciaDeFecha,formatearFechaYHora} = require('../functions/funciones');
-
+import { writeFile } from 'fs';
+import { join } from 'path';
+import { promisify } from 'util';
+const writeFileAsync = promisify(writeFile);
 import axios from 'axios';
 import { ResRuta, Ruta, RutaData } from './interfaces/ruta.interface';
 const moment = require('moment');
@@ -455,18 +458,86 @@ export class ConductorService {
   ) {
     try {
       let message = 'CONDUCTOR CREADA SATISFACTORIAMENTE';
-
-      /* if( conductorParams.imagen != "" || conductorParams.imagen != null){
-        if(String(conductorParams.imagen).includes('data:image/png;base64,')){
-          const name = conductorParams.nombre_conductor+'/logo.jpg';
-          var url = String(conductorParams.imagen).replace('data:image/png;base64,','');
-          const image = await uploadToBucket(name,url)
-          conductorParams.imagen = image.Location
-        }
-      } */
-      console.log(conductorParams)
-
       var success = true;
+      const host = String(process.env.GATEWAY_HOST)
+      const port = Number(process.env.GATEWAY_PORT)
+
+      if((conductorParams.vehiculo[0].documento_seguro || conductorParams.vehiculo[0].documento_seguro === "") && conductorParams.vehiculo[0].documento_seguro.includes('base64') ){
+        const fileType = this.getFileType(conductorParams.vehiculo[0].documento_seguro);
+
+        const base64Data = conductorParams.vehiculo[0].documento_seguro.replace(/^data:[a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+;base64,/, '');
+        let fileExtension = '';
+        if (fileType.startsWith('image/')) {
+          fileExtension = fileType.split('/')[1];
+        } else if (fileType === 'application/pdf') {
+          fileExtension = 'pdf';
+        }
+        const buffer = Buffer.from(base64Data, 'base64');
+        const filename = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExtension}`;
+        const filePath = join(__dirname, '..', '..','..','api-gateway-service', 'uploads','conductor','vehiculo','documento_seguro', filename);
+        await writeFileAsync(filePath, buffer);
+        const publicPath = `http://${host}:${port}/uploads/conductor/vehiculo/documento_seguro/${filename}`;
+        conductorParams.vehiculo[0].documento_seguro = publicPath
+      } 
+      if((conductorParams.vehiculo[0].documento_inspeccion || conductorParams.vehiculo[0].documento_inspeccion === "") && conductorParams.vehiculo[0].documento_inspeccion.includes('base64') ){
+        const fileType = this.getFileType(conductorParams.vehiculo[0].documento_inspeccion);
+
+        const base64Data = conductorParams.vehiculo[0].documento_inspeccion.replace(/^data:[a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+;base64,/, '');
+        let fileExtension = '';
+        if (fileType.startsWith('image/')) {
+          fileExtension = fileType.split('/')[1];
+        } else if (fileType === 'application/pdf') {
+          fileExtension = 'pdf';
+        }
+        const buffer = Buffer.from(base64Data, 'base64');
+        const filename = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExtension}`;
+        const filePath = join(__dirname, '..', '..','..','api-gateway-service', 'uploads','conductor','vehiculo','documento_inspeccion', filename);
+        await writeFileAsync(filePath, buffer);
+        const publicPath = `http://${host}:${port}/uploads/conductor/vehiculo/documento_inspeccion/${filename}`;
+        conductorParams.vehiculo[0].documento_inspeccion = publicPath
+      }
+      let numIma = 0
+      for await(const ima of conductorParams.vehiculo[0].imagen){
+        if((ima || ima === "") && ima.includes('base64') ){
+          const fileType = this.getFileType(ima);
+  
+          const base64Data = ima.replace(/^data:[a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+;base64,/, '');
+          let fileExtension = '';
+          if (fileType.startsWith('image/')) {
+            fileExtension = fileType.split('/')[1];
+          } else if (fileType === 'application/pdf') {
+            fileExtension = 'pdf';
+          }
+          const buffer = Buffer.from(base64Data, 'base64');
+          const filename = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExtension}`;
+          const filePath = join(__dirname, '..', '..','..','api-gateway-service', 'uploads','conductor','vehiculo','imagenes', filename);
+          await writeFileAsync(filePath, buffer);
+          const publicPath = `http://${host}:${port}/uploads/conductor/vehiculo/imagenes/${filename}`;
+          conductorParams.vehiculo[0].imagen[numIma] = publicPath
+        }
+        numIma++
+      }
+      conductorParams.vehiculo[0].imagen.map(async (ima) => {
+        
+      })
+
+      if((conductorParams.licencia[0].file || conductorParams.licencia[0].file === "") && conductorParams.licencia[0].file.includes('base64') ){
+        const fileType = this.getFileType(conductorParams.licencia[0].file);
+
+        const base64Data = conductorParams.licencia[0].file.replace(/^data:[a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+;base64,/, '');
+        let fileExtension = '';
+        if (fileType.startsWith('image/')) {
+          fileExtension = fileType.split('/')[1];
+        } else if (fileType === 'application/pdf') {
+          fileExtension = 'pdf';
+        }
+        const buffer = Buffer.from(base64Data, 'base64');
+        const filename = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExtension}`;
+        const filePath = join(__dirname, '..', '..','..','api-gateway-service', 'uploads','conductor','licencia', filename);
+        await writeFileAsync(filePath, buffer);
+        const publicPath = `http://${host}:${port}/uploads/conductor/licencia/${filename}`;
+        conductorParams.licencia[0].file = publicPath
+      }
       conductorParams.vehiculo[0].fecha_vencimiento_soat = new Date(conductorParams.vehiculo[0].fecha_vencimiento_soat);;
       conductorParams.fe_creacion = new Date(String(this.getDate()));
       const nuevaConductor = await new this.conductorModel(conductorParams).save();
@@ -511,6 +582,85 @@ export class ConductorService {
           rutaImagen = body.imagen
         }
       } */
+      const host = String(process.env.GATEWAY_HOST)
+      const port = Number(process.env.GATEWAY_PORT)
+
+      if((body.vehiculo[0].documento_seguro || body.vehiculo[0].documento_seguro === "") && body.vehiculo[0].documento_seguro.includes('base64') ){
+        const fileType = this.getFileType(body.vehiculo[0].documento_seguro);
+
+        const base64Data = body.vehiculo[0].documento_seguro.replace(/^data:[a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+;base64,/, '');
+        let fileExtension = '';
+        if (fileType.startsWith('image/')) {
+          fileExtension = fileType.split('/')[1];
+        } else if (fileType === 'application/pdf') {
+          fileExtension = 'pdf';
+        }
+        const buffer = Buffer.from(base64Data, 'base64');
+        const filename = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExtension}`;
+        const filePath = join(__dirname, '..', '..','..','api-gateway-service', 'uploads','conductor','vehiculo','documento_seguro', filename);
+        await writeFileAsync(filePath, buffer);
+        const publicPath = `http://${host}:${port}/uploads/conductor/vehiculo/documento_seguro/${filename}`;
+        body.vehiculo[0].documento_seguro = publicPath
+      } 
+      if((body.vehiculo[0].documento_inspeccion || body.vehiculo[0].documento_inspeccion === "") && body.vehiculo[0].documento_inspeccion.includes('base64') ){
+        const fileType = this.getFileType(body.vehiculo[0].documento_inspeccion);
+
+        const base64Data = body.vehiculo[0].documento_inspeccion.replace(/^data:[a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+;base64,/, '');
+        let fileExtension = '';
+        if (fileType.startsWith('image/')) {
+          fileExtension = fileType.split('/')[1];
+        } else if (fileType === 'application/pdf') {
+          fileExtension = 'pdf';
+        }
+        const buffer = Buffer.from(base64Data, 'base64');
+        const filename = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExtension}`;
+        const filePath = join(__dirname, '..', '..','..','api-gateway-service', 'uploads','conductor','vehiculo','documento_inspeccion', filename);
+        await writeFileAsync(filePath, buffer);
+        const publicPath = `http://${host}:${port}/uploads/conductor/vehiculo/documento_inspeccion/${filename}`;
+        body.vehiculo[0].documento_inspeccion = publicPath
+      }
+      let numIma = 0
+      for await(const ima of body.vehiculo[0].imagen){
+        if((ima || ima === "") && ima.includes('base64') ){
+          const fileType = this.getFileType(ima);
+  
+          const base64Data = ima.replace(/^data:[a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+;base64,/, '');
+          let fileExtension = '';
+          if (fileType.startsWith('image/')) {
+            fileExtension = fileType.split('/')[1];
+          } else if (fileType === 'application/pdf') {
+            fileExtension = 'pdf';
+          }
+          const buffer = Buffer.from(base64Data, 'base64');
+          const filename = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExtension}`;
+          const filePath = join(__dirname, '..', '..','..','api-gateway-service', 'uploads','conductor','vehiculo','imagenes', filename);
+          await writeFileAsync(filePath, buffer);
+          const publicPath = `http://${host}:${port}/uploads/conductor/vehiculo/imagenes/${filename}`;
+          body.vehiculo[0].imagen[numIma] = publicPath
+        }
+        numIma++
+      }
+      body.vehiculo[0].imagen.map(async (ima) => {
+        
+      })
+
+      if((body.licencia[0].file || body.licencia[0].file === "") && body.licencia[0].file.includes('base64') ){
+        const fileType = this.getFileType(body.licencia[0].file);
+
+        const base64Data = body.licencia[0].file.replace(/^data:[a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+;base64,/, '');
+        let fileExtension = '';
+        if (fileType.startsWith('image/')) {
+          fileExtension = fileType.split('/')[1];
+        } else if (fileType === 'application/pdf') {
+          fileExtension = 'pdf';
+        }
+        const buffer = Buffer.from(base64Data, 'base64');
+        const filename = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExtension}`;
+        const filePath = join(__dirname, '..', '..','..','api-gateway-service', 'uploads','conductor','licencia', filename);
+        await writeFileAsync(filePath, buffer);
+        const publicPath = `http://${host}:${port}/uploads/conductor/licencia/${filename}`;
+        body.licencia[0].file = publicPath
+      } 
 
       const result = await this.conductorModel
         .findByIdAndUpdate(
@@ -685,7 +835,10 @@ export class ConductorService {
     }
   }
   
-
+  getFileType(base64: string): string {
+    const mimeType = base64.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
+    return mimeType ? mimeType[1] : null;
+  }
   
   NombreFileS3 (ruc: string,id_conductor: string,id_user: string,nom: string){
     var today = new Date();

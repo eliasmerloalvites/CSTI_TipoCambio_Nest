@@ -1,15 +1,10 @@
-import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import * as mongoose from 'mongoose';
 
-export type MessageDocument = Message & Document;
-
-@Schema()
-export class Message {
-  @Prop({ required: true })
-  content: string;
-
-  @Prop({ default: Date.now })
-  createdAt: Date;
-}
-
-export const MessageSchema = SchemaFactory.createForClass(Message);
+export const MessageSchema = new mongoose.Schema({
+  id_user_emisor: { type: mongoose.Schema.Types.ObjectId, ref: 'User',require: true},
+  id_user_receptor: { type: mongoose.Schema.Types.ObjectId, ref: 'User',require: true},
+  type_message: { type: String, required: true },
+  content: { type: String, required: true, default: null },
+  fe_creacion: { type: Date, require: false },
+  readBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] 
+});

@@ -38,6 +38,7 @@ export const UserSchema = new mongoose.Schema({
     default: null,
   },
   status: { type: String, require: false, default: 'PEN' },
+  client_id: { type: String, require: false, default: '' },  
   online: { type: Boolean, require: false, default:null},
   avatar: { type: String, required: false, default:null },
   campania: { type: Boolean, require: false, default: 'false' },

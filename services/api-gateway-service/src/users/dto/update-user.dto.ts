@@ -5,11 +5,8 @@ export class EditarUserDto {
     @IsString()
     _id: string;
 
-    @IsNumber()
-    codigo_usuario: string;
-
     @IsString()
-    usuario: string;
+    codigo_usuario: string;
 
     @IsString()
     @MinLength(4)

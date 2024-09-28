@@ -20,6 +20,11 @@ export class UserController {
   async getUserById(params: any) {
     return await this.userService.getUserById(params.id_user);
   }
+  
+  @MessagePattern({ cmd: 'findweb_user_by_id' })
+  async findWebIdUser(params: any) {
+    return await this.userService.findWebIdUser(params.id_user);
+  }
 
   @MessagePattern({ cmd: 'create_user' })
   async createUser(params: any) {

@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { ConfigModule } from '@nestjs/config';
 
 //ENTITIES
@@ -20,7 +22,11 @@ const env = process.env.NODE_ENV || 'development';
     ConfigModule.forRoot({
       envFilePath: `environments/${env}.env`,
       isGlobal: true,
-    }),   
+    }),  
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads', // Ruta desde donde se servirán los archivos
+    }), 
     MongooseModule.forRoot(
       `${process.env.MONGO_URL}?retryWrites=true&w=majority`,
     ),

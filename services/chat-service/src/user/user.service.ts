@@ -318,6 +318,59 @@ export class UserService {
       };
     }
   }
+  
+  async onlineUser(params: any) {
+    try {
+      var success = true;
+
+        const result = await this.userModel
+        .updateOne(
+          { _id: params.id_user }, 
+          { client_id: params.client,online:true }
+        )
+        .exec();
+
+      return {
+        success: success,
+        data: result,
+        message: 'USUARIO ONLINE',
+      };
+    } catch (error) {
+      success = false;
+      return {
+        success: success,
+        data: null,
+        message: error.message,
+      };
+    }
+  }
+
+  
+  async user_offline(params: any) {
+    try {
+      var success = true;
+
+        const result = await this.userModel
+        .updateOne(
+          { client_id: params.client }, 
+          { online:false, fe_conexion:new Date(String(this.getDate())) }
+        )
+        .exec();
+
+      return {
+        success: success,
+        data: result,
+        message: 'USUARIO OFFLINE',
+      };
+    } catch (error) {
+      success = false;
+      return {
+        success: success,
+        data: null,
+        message: error.message,
+      };
+    }
+  }
  
   async login(usuario: string, contraseña: string): Promise<any>  {
     try {

@@ -46,6 +46,17 @@ export class UserController {
     return await this.userService.login(params.email, params.contraseña);
   }
 
+  @MessagePattern({ cmd: 'user_online' })
+  async onlineUser(params: any) {
+    const message = await this.userService.onlineUser(params);
+    return message;
+  }
+  
+  @MessagePattern({ cmd: 'user_offline' })
+  async user_offline(params: any) {
+    const message = await this.userService.user_offline(params);
+    return message;
+  }
 
 
 
